@@ -1,0 +1,145 @@
+library IEEE;
+use IEEE.std_logic_1164.all;
+ENTITY counter_ent IS 
+
+      PORT    (   clk,ce, wr: IN BIT; 
+                  din  : in BIT_VECTOR(2 DOWNTO 0);
+                  q   : OUT BIT_VECTOR(2 DOWNTO 0) 
+
+              ); 
+
+  END ENTITY counter_ent; 
+
+
+  ARCHITECTURE counter_arch OF counter_ent IS 
+
+  BEGIN 
+
+      PROCESS (ce, clk, wr) 
+
+          VARIABLE q_int : BIT_VECTOR(2 DOWNTO 0):="111";     
+
+          VARIABLE cq : BIT;  
+
+      BEGIN 
+
+               IF ce'event then
+                	cq:=ce;
+                end if;
+
+              IF clk'event and clk='1' THEN 
+              
+              	
+
+                  IF cq='1' and wr = '0' THEN 
+
+                      CASE q_int IS 
+
+                         
+                          WHEN "111" => q_int := "110"; 
+
+                          WHEN "110" => q_int := "101"; 
+
+						  WHEN "101" => q_int := "100";
+                            
+                          WHEN "100" => q_int := "011"; 
+
+                          WHEN "011" => q_int := "010"; 
+
+                          WHEN "010" => q_int := "001"; 
+
+                          WHEN "001" => q_int := "000";
+                          
+                          WHEN "000" => q_int := din; 
+
+                      END CASE; 
+				  elsif cq = '0' then
+
+	                q<=q_int;
+                    
+                  elsif wr = '1' then
+                  
+                    q_int:= din;
+                    cq :='0';
+                   
+                  END IF; 
+                  
+                 
+
+              END IF; 
+
+      q <= q_int; 
+
+      END PROCESS; 
+
+  END counter_arch;
+
+
+library IEEE;
+use IEEE.std_logic_1164.all;
+ENTITY adder3b_tb IS 
+
+  END ENTITY adder3b_tb; 
+
+  ARCHITECTURE tb OF adder3b_tb IS 
+
+      SIGNAL sigQ, sigDin : bit_vector(2 DOWNTO 0); 
+      SIGNAL sigCe, sigWr, sigClk: bit; 
+
+  BEGIN 
+
+      uut: ENTITY  work.counter_ent(counter_arch) 
+
+          PORT MAP( 
+
+              ce=>sigCe, 
+              clk=>sigClk, 
+              din=>sigDin,
+              wr=>sigWr,  
+              q=>sigQ   
+
+          ); 
+          klok: PROCESS  
+
+      BEGIN 
+
+          sigClk<='0'; 
+ 
+          WAIT FOR 5 ns; 
+          
+          sigClk<='1'; 
+ 
+          WAIT FOR 5 ns; 
+ 
+
+      END PROCESS klok; 
+       simulacija: PROCESS
+      BEGIN
+          sigDin <="101";
+      	  sigCe <= '1';
+          sigWr <= '0';
+          WAIT FOR 10 ns;
+	
+          sigWr <= '0';
+          WAIT FOR 10 ns;
+          
+          sigWr <= '0';
+          WAIT FOR 10 ns;
+          
+          sigWr <= '1';
+          WAIT FOR 10 ns;
+          
+          sigDin <="101";
+          wait for 10 ns;
+          sigCe<='0';
+          wait for 10 ns;
+          sigWr <= '0';
+          sigCe<='1';
+          wait for 10 ns;
+          
+          
+      END PROCESS simulacija; 
+      
+
+
+  END ARCHITECTURE tb;
