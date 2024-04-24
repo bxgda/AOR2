@@ -1,81 +1,101 @@
-
--- Primer od cs-a za lab3
-
 library ieee ;
     use ieee.std_logic_1164.all ;
     use ieee.numeric_std.all ;
 
-entity saSlike is
+entity xorGate is
   port (
-    a, b, cin : in std_logic;
-    cout : out std_logic
+    a, b : in std_logic;
+    y : out std_logic;
   ) ;
-end saSlike ; 
+end xorGate ; 
 
-architecture a_saSlike of saSlike is
+architecture a_xorGate of xorGate is
+
 begin
-
-    cout <= (cin xor a) or b;
+    y <= a xor b;
 
 end architecture ;
 
+---------------------------------------- end xorGate
+
 library ieee ;
     use ieee.std_logic_1164.all ;
     use ieee.numeric_std.all ;
 
-entity celo is
-    generic (n : integer := 4); 
-    port (
-        a, b : in std_logic_vector(0 to n-1);
-        cin : in std_logic;
-        izlaz : out std_logic_vector(0 to n-1);
-    );
-end celo ; 
+entity orGate is
+  port (
+    a, b : in std_logic;
+    y : out std_logic;
+  ) ;
+end orGate ; 
 
-architecture a_celo of celo is
+architecture a_orGate of orGate is
+
 begin
+    y <= a or b;
 
-    generisi: for i in 0 to n-1 generate
+end architecture ;
+
+----------------------------------------- end orGate
+
+library ieee ;
+    use ieee.std_logic_1164.all ;
+    use ieee.numeric_std.all ;
+
+entity kolo is
+    generic (n : integer := 4);
+    port (
+        ulaz1 : in std_logic;
+        a, b : in std_logic_vector(0 to n-1);
+        y : out std_logic_vector(0 to n-1);
+    ) ;
+end kolo ; 
+
+architecture a_kolo of kolo is
+    signal medju : std_logic_vector(0 to n-1);
+
+begin
+  -- generisi: for i in a'range generate .... (opseg preko atributa)
+  -- generisi: for i in range (a'left to a'right) generate ...
+  
+    nultiXor : entity work.xorGate(a_xorGate)
+        port map (ulaz1, a(0), medju(0));
+    nultiOr : entity work.orGate(a_orGate)
+        port map (medju(0), b(0), y(0));
+    
+    generisi : for i in 1 to n-1 generate
+    -- ovde bi piso lokalne signale
     begin
-        
-        uslovi: if i = 0 generate
-        begin
-            kadJePrvi: entity work.saSlike(a_saSlike)
-            port map (a(i), b(i), cin, izlaz(i));
+        itiXor : entity work.xorGate(a_xorGate)
+            port map (y(i-1), a(i), medju(i));
+        itiOr : entity work.orGate(a_orGate)
+            port map (medju(i), b(i), y(i));
 
-        else generate
-            uSredini: entity work.saSlike(a_saSlike)
-            port map (a(i), b(i), izlaz(i-1), izlaz(i));
-
-        end generate uslovi;
     end generate generisi;
 end architecture ;
 
-------------------------------------------------------
+----------------------------------------------- end kolo
 
 library ieee ;
     use ieee.std_logic_1164.all ;
     use ieee.numeric_std.all ;
 
 entity tb is
-    generic (n : integer := 3);
+  generic (n : integer := 4);
 end tb ; 
 
-architecture atb of tb is
-    signal a, b, izlaz : std_logic_vector(0 to n-1);
-    signal cin : std_logic;
+architecture a_tb of tb is
+    signal a, b, y : std_logic_vector(0 to n-1);
+    signal ulaz1 : std_logic;
 
 begin
-    dut : entity work.celo(a_celo)
-    generic map(n)
-    port map (a, b, cin, izlaz);
+    dut : entity work.kolo(a_kolo);
+        port map(ulaz1, a, b, y);
 
-    stimuli: process
+    stimuli : process
     begin
-        a <= "001"
-        b <= "010"
-        cin <= '0'
-        wait for 50 ns;
-    end process stimuli;
-
+        ulaz1 <= '1';
+        a <= "0011";
+        b <= "1100";
+    end process;
 end architecture ;
