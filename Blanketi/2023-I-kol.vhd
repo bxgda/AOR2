@@ -1,5 +1,5 @@
--- KURCU NE VALJA... PROVERITI SVE... PRVO BROJAC
 
+-- VALJDA JE TO POENTA JEBEM LI GA SAD
 
 library ieee ;
     use ieee.std_logic_1164.all ;
@@ -35,45 +35,42 @@ end architecture ;
 
 ----------------------------------------------------- end bcd
 
+
 library ieee ;
     use ieee.std_logic_1164.all ;
     use ieee.numeric_std.all ;
 
 entity kolo is
   port (
-    clk, rst, we : in std_logic;
-    d_in : in std_logic_vector(3 downto 0);
+    clk, rst : in std_logic;
     d_out : out std_logic_vector(3 downto 0);
   ) ;
 end kolo ; 
 
 architecture a_kolo of kolo is
+    signal we_local, cq : std_logic;
+    signal d_in_local : std_logic_vector(3 downto 0);
 begin
     
-    process (clk, rst)
-        variable cq : std_logic; -- sluzi da broji na svaki drugi klok
-        variable d_in_local, we_local : std_logic;
-    begin
+    instanca: entity work.bcd(a_bcd)
+        port map (cq, we_local, d_in_local, d_out);
 
+    process (clk, rst)
+    begin
         if rst = '1' then           -- resetuj brojac
-            we_local := '1';
-            d_in_local := "0000";
+            we_local <= '1';
+            d_in_local <= "0000";
+            cq <= clk;
         end if;
         
         if clk'event and clk = '1' then
-            cq := not cq;
-            if cq = '1' then
-                we_local := we;
-                d_in_local := d_in;
+            cq <= not cq;
+            if cq = '1' then        -- na svaki drugi takt
+                we_local <= '0';    -- samo setuje we na 0 i brojac krene da si broji
             end if;
         end if;
+    end process ;
 
-        we <= we_local;
-        d_in <= d_in_local;
-        end process ;
-
-    instanca: entity work.bcd(a_bcd)
-        port map (clk, we, d_in, d_out);
 end architecture ;
 
 
@@ -87,31 +84,25 @@ entity tb is
 end tb ; 
 
 architecture a_tb of tb is
-    signal clk, rst, we : std_logic;
-    signal d_in, d_out : std_logic_vector (3 downto 0);
+    signal clk, rst: std_logic;
+    signal d_out : std_logic_vector (3 downto 0);
     
 begin
     dut : entity work.kolo(a_kolo)
-        port map(clk, rst, we, d_in, d_out);
+        port map(clk, rst, d_out);
     
     process
     begin
-        clk <= '0';
-        wait for 5 ns;
-        clk <= '1';
-        wait for 5 ns;
+        clk <= '0'; wait for 5 ns;
+        clk <= '1'; wait for 5 ns;
     end process;
     
     stimuli: process
     begin
         rst <= '1';
-        wait for 12 ns;
+        wait for 2 ns;
         rst <= '0';
-        we <= '0';
-        wait for 100 ns;
-        we <= '1';
-        d_in <= "0011";
-        wait for 100 ns;
+        wait for 500 ns;
 
     end process stimuli;
 
