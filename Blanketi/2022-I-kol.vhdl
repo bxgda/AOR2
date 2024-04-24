@@ -41,7 +41,7 @@ library ieee ;
 entity kolo is
   generic (n : integer := 4);
   port (
-    a, b : in std_logic_vector(n-1 downto 0);
+    a, b : in std_logic_vector(n-1 downto 0);  
     c : in std_logic;
     d : out std_logic_vector(n-1 downto 0);
   ) ;
@@ -50,17 +50,17 @@ end kolo ;
 architecture a_kolo of kolo is
 begin
 
-  generisi: for i in 0 to n-1 generate
-    signal yXor : std_logic;        -- lokalan medju promenljiva koju daje xor na njegov izlaz
-  begin
-    
-    uslovi: if i = 0 generate
+    generisi: for i in 0 to n-1 generate
+      signal yXor : std_logic;        -- lokalan medju promenljiva koju daje xor na njegov izlaz
+
     begin
-        nultiXor: entity work.xorGate(a_xorGate)
+      uslovi: if i = 0 generate
+      begin
+        nultiXor : entity work.xorGate(a_xorGate)
           port map (a(i), b(i), yXor);
         nultiOr: entity work.orGate(a_orGate)
           port map (yXor, c, d(i));
-    else generate
+      else generate
         itiXor : entity work.xorGate(a_xorGate)
           port map(a(i), b(i), yXor);
         itiOr : entity work.orGate(a_orGate)
