@@ -1,6 +1,3 @@
-
--- radi al samo za prvi uneti pin
-
 library ieee ;
     use ieee.std_logic_1164.all ;
     use ieee.numeric_std.all ;
@@ -57,18 +54,9 @@ end kolo ;
 
 architecture a_kolo of kolo is
     signal izlazKomparator, izlazAnd, zapamcenPin : std_logic_vector(n-1 downto 0);
-    signal flag : std_logic;
 begin
 
-    process(s)
-    begin
-        if s = '1' then
-            flag <= '0';
-            zapamcenPin <= pin;
-        else 
-            flag <= '1';
-        end if;
-    end process;
+ 	zapamcenPin <= pin when s = '1';
 
     generisi : for i in 0 to n-1 generate
     begin
@@ -84,15 +72,11 @@ begin
                 generic map ('1')
                 port map (izlazKomparator(i), izlazAnd(i-1), izlazAnd(i));
         end generate uslovi;
+        
     end generate generisi;
     
-    process(flag)
-    begin
-        if flag = '1' then
-            y <= izlazAnd(n-1);
-        end if;
-    end process;
-
+    y <= izlazAnd(n-1) when s = '0';
+    
 end architecture ;
 
 ----------------------------------------------------------- end kolo
