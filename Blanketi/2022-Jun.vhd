@@ -6,12 +6,12 @@ library ieee ;
     use ieee.numeric_std.all ;
 
 entity brojac is
-    generic (n : positive := 10) ; -- osnove 10
+    generic (n : integer := 10) ; -- osnove 10
     port (
         clk, ce, wr, smer : in std_logic;
-        d_in : in positive range 0 to n-1; -- probao sam sa std_logic_vector al zajebano kad treba se prebaci jer za broj bitova se mora trazi logaritam
+        d_in : in integer range 0 to n-1; -- probao sam sa std_logic_vector al zajebano kad treba se prebaci jer za broj bitova se mora trazi logaritam
         -- sve u svemu nigde ne pise kakav ulaz treba da bude
-        d_out: out positive range 0 to n-1;
+        d_out: out integer range 0 to n-1;
     ) ;
 end brojac ; 
 
@@ -19,7 +19,7 @@ architecture a_brojac of brojac is
 begin
 
     process(clk)
-        variable stanje_brojaca : positive range 0 to n-1;
+        variable stanje_brojaca : integer range 0 to n-1;
     begin
 
         if clk'event and clk = '1' then             -- na aktivnu ivicu kloka
