@@ -1,6 +1,6 @@
 # Arhitektura i organizacija računara 2
 
-- Rešeni razni blanketi
+- Rešeni razni blanketi.
 - Folder u kome se nalazi vežbanje za lab vežbe kao i korisne komponente za iste.
 
 ##
